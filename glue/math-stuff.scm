@@ -9,6 +9,12 @@
  negate-rotation
  transform-origin)
 
+(define (assert bool)
+  (if bool '() (error "assertion failure")))
+
+(define (matrix? matrix)
+  (eq? (length matrix) 16))
+
 ;; We use column-major storage, whereas what looks natural below would
 ;; be row-major, so this transposes it:
 (define (mat4 a b c d
@@ -22,6 +28,9 @@
 
 ;; Create a translation matrix:
 (define (translate x y z)
+  (assert (number? x))
+  (assert (number? y))
+  (assert (number? z))
   (mat4 1 0 0 x
 	0 1 0 y
 	0 0 1 z
@@ -29,6 +38,7 @@
 
 ;; Create a rotation matrix around the x axis:
 (define (rotate-x angle)
+  (assert (number? angle))
   (let* ([P (sin (degrees->radians angle))]
 	 [N (* -1 P)]
 	 [C (cos (degrees->radians angle))])
@@ -39,6 +49,7 @@
 
 ;; Create a rotation matrix around the y axis:
 (define (rotate-y angle)
+  (assert (number? angle))
   (let* ([P (sin (degrees->radians angle))]
 	 [N (* -1 P)]
 	 [C (cos (degrees->radians angle))])
@@ -49,6 +60,7 @@
 
 ;; Create a rotation matrix around the z axis:
 (define (rotate-z angle)
+  (assert (number? angle))
   (let* ([P (sin (degrees->radians angle))]
 	 [N (* -1 P)]
 	 [C (cos (degrees->radians angle))])
@@ -77,10 +89,13 @@
 
 ;; Multiply two matrices:
 (define (mat4-mul lhs rhs)
+  (assert (matrix? lhs))
+  (assert (matrix? rhs))
   (map (lambda (i) (dot (mat-row lhs i) (mat-col rhs i))) (range 16)))
 
 ;; Transform the origin by a matrix:
 (define (transform-origin matrix)
+  (assert (matrix? matrix))
   (let* ([xyz (list (list-ref matrix 12)
 		    (list-ref matrix 13)
 		    (list-ref matrix 14))]
@@ -88,6 +103,7 @@
     (map (lambda (a) (/ a w)) xyz)))
 
 (define (negate-rotation matrix)
+  (assert (matrix? matrix))
   (list (list-ref matrix 0)
 	(list-ref matrix 1)
 	(list-ref matrix 2)
