@@ -5,7 +5,9 @@
  rotate-x
  rotate-y
  rotate-z
- mat4-mul)
+ mat4-mul
+ negate-rotation
+ transform-origin)
 
 ;; We use column-major storage, whereas what looks natural below would
 ;; be row-major, so this transposes it:
@@ -76,3 +78,27 @@
 ;; Multiply two matrices:
 (define (mat4-mul lhs rhs)
   (map (lambda (i) (dot (mat-row lhs i) (mat-col rhs i))) (range 16)))
+
+;; Transform the origin by a matrix:
+(define (transform-origin matrix)
+  (let* ([xyz (list (list-ref matrix 12)
+		    (list-ref matrix 13)
+		    (list-ref matrix 14))]
+	 [w (list-ref matrix 15)])
+    (map (lambda (a) (/ a w)) xyz)))
+
+(define (negate-rotation matrix)
+  (list (list-ref matrix 0)
+	(list-ref matrix 2)
+	(list-ref matrix 3)
+	(list-ref matrix 4)
+	(list-ref matrix 5)
+	(list-ref matrix 6)
+	(list-ref matrix 7)
+	(list-ref matrix 9)
+	(list-ref matrix 10)
+	(list-ref matrix 11)
+	0
+	0
+	0
+	1))
