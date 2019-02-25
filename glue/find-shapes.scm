@@ -1,22 +1,11 @@
 #lang racket
 
 (require "math-stuff.scm")
+(require "csg-common.scm")
 
 (provide
  find-shapes
  shapes-by-type)
-
-(define (is-operator? expr) (or (eq? (car expr) 'minus)
-				(eq? (car expr) 'union)
-				(eq? (car expr) 'inter)))
-
-(define (is-transform? expr) (or (eq? (car expr) 'translate)
-				 (eq? (car expr) 'rotate-x)
-				 (eq? (car expr) 'rotate-y)
-				 (eq? (car expr) 'rotate-z)))
-
-(define (is-shape? expr) (or (eq? (car expr) 'sphere)
-			     (eq? (car expr) 'box)))
 
 (define (handle-operator expr matrix mode)
   (let* ([operator (car expr)]

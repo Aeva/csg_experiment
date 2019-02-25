@@ -1,5 +1,6 @@
 prepend: shaders/draw_box.etc.glsl
 prepend: shaders/sdf_common.glsl
+prepend: shaders/generated.glsl
 --------------------------------------------------------------------------------
 
 in vec4 WorldPosition;
@@ -21,7 +22,7 @@ void main()
 	}
 	else
 	{
-		const float SDF = HelloWorldSDF(WorldPosition.xyz);
+		const float SDF = GeneratedSDF(WorldPosition.xyz);
 		if (SDF > DiscardThreshold)
 		{
 			discard;

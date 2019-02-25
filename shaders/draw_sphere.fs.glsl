@@ -1,5 +1,6 @@
 prepend: shaders/draw_sphere.etc.glsl
 prepend: shaders/sdf_common.glsl
+prepend: shaders/generated.glsl
 --------------------------------------------------------------------------------
 
 in vec4 ViewCenter;
@@ -30,7 +31,7 @@ void main()
 		const vec4 WorldPosition = InvViewMatrix * NewViewPosition;
 		const vec3 ViewNormal = normalize(NewViewPosition.xyz - ViewCenter.xyz);
 		const vec3 WorldNormal = normalize(WorldPosition.xyz - SphereParams.xyz) * (SphereParams.w < 0 ? vec3(-1) : vec3(1));
-		const float SDF = HelloWorldSDF(WorldPosition.xyz);
+		const float SDF = GeneratedSDF(WorldPosition.xyz);
 		if (SDF > DiscardThreshold)
 		{
 			discard;

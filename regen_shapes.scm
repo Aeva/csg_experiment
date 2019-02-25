@@ -3,6 +3,7 @@
 
 (require "glue/math-stuff.scm")
 (require "glue/find-shapes.scm")
+(require "glue/glsl-stuff.scm")
 
 ;; Some size constants that will be needed for:
 (define vec4-size (* 4 4))
@@ -44,7 +45,7 @@
 (define (munge-boxes boxes) (apply append (map munge-box boxes)))
 
 ;; Read shape data and dump it to disk:
-(define (do-the-thing)
+(define (regen-blob)
   (let* ([shapes (shapes-by-type (find-shapes csg-tree))]
 	 [spheres (car shapes)]
 	 [boxes (cadr shapes)]
@@ -58,4 +59,8 @@
     (write-float* shape-data))
   '())
 
-(with-output-to-file "shape.blob" do-the-thing #:exists 'replace)
+(define (regen-glsl)
+  (write-string (generate-glsl csg-tree)))
+
+(with-output-to-file "shape.blob" regen-blob #:exists 'replace)
+(with-output-to-file "shaders/generated.glsl" regen-glsl #:exists 'replace)

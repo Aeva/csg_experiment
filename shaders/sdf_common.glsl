@@ -7,94 +7,82 @@ const float DiscardThreshold = 0.00005;
 
 // - - - - CSG operators - - - -
 
+float Minus(float lhs, float rhs)
+{
+	return max(lhs, -rhs);
+}
+
+
 float Union(float lhs, float rhs)
 {
 	return min(lhs, rhs);
 }
 
 
-float Intersection(float lhs, float rhs)
+float Inter(float lhs, float rhs)
 {
 	return max(lhs, rhs);
 }
 
 
-float Difference(float lhs, float rhs)
-{
-	return max(lhs, -rhs);
-}
-
-
 // - - - - SPACE transformation functions - - - -
 
-vec3 Translate(vec3 Point, vec3 NewOrigin)
+vec3 Translate(vec3 NewOrigin, vec3 Cursor)
 {
-	return Point - NewOrigin;
+	return Cursor - NewOrigin;
 }
 
 
-vec2 Rotate2D(vec2 Point, float Radians)
+vec2 Rotate2D(float Radians, vec2 Cursor)
 {
 	vec2 SinCos = vec2(sin(Radians), cos(Radians));
 	return vec2(
-		SinCos.y * Point.x + SinCos.x * Point.y,
-		SinCos.y * Point.y - SinCos.x * Point.x);
+		SinCos.y * Cursor.x + SinCos.x * Cursor.y,
+		SinCos.y * Cursor.y - SinCos.x * Cursor.x);
 }
 
 
-vec3 RotateX(vec3 Point, float Radians)
+vec3 RotateX(float Radians, vec3 Cursor)
 {
-	vec2 Rotated = Rotate2D(Point.yz, Radians);
-	return vec3(Point.x, Rotated.xy);
+	vec2 Rotated = Rotate2D(Radians, Cursor.yz);
+	return vec3(Cursor.x, Rotated.xy);
 }
 
 
-vec3 RotateY(vec3 Point, float Radians)
+vec3 RotateY(float Radians, vec3 Cursor)
 {
-	vec2 Rotated = Rotate2D(Point.xz, Radians);
-	return vec3(Rotated.x, Point.y, Rotated.y);
+	vec2 Rotated = Rotate2D(Radians, Cursor.xz);
+	return vec3(Rotated.x, Cursor.y, Rotated.y);
 }
 
 
-vec3 RotateZ(vec3 Point, float Radians)
+vec3 RotateZ(float Radians, vec3 Cursor)
 {
-	vec2 Rotated = Rotate2D(Point.xy, Radians);
-	return vec3(Rotated.xy, Point.z);
+	vec2 Rotated = Rotate2D(Radians, Cursor.xy);
+	return vec3(Rotated.xy, Cursor.z);
 }
 
 
-vec3 Scale(vec3 Point, vec3 Scale)
+vec3 Scale(vec3 Scale, vec3 Cursor)
 {
-	return Point / Scale;
+	return Cursor / Scale;
 }
 
 
 // - - - - SDF shape functions - - - -
 
-float SphereSDF(vec3 Test, float Radius)
+float SphereSDF(float Radius, vec3 Cursor)
 {
-	return length(Test) - Radius;
+	return length(Cursor) - Radius;
 }
 
 
-float BoxSDF(vec3 Test, vec3 Extent)
+float BoxSDF(vec3 Extent, vec3 Cursor)
 {
-	const vec3 EdgeDistance = abs(Test) - Extent * 0.5;
+	const vec3 EdgeDistance = abs(Cursor) - Extent * 0.5;
 	const vec3 Positive = min(EdgeDistance, vec3(0.0));
 	const vec3 Negative = max(EdgeDistance, vec3(0.0));
 	const float ExteriorDistance = length(Negative);
 	const float InteriorDistance = max(max(Positive.x, Positive.y), Positive.z);
 	return ExteriorDistance + InteriorDistance;
-}
-
-
-float HelloWorldSDF(vec3 Test)
-{
-	float Solid = SphereSDF(Translate(Test, vec3(0, 0, 0)), 200);
-	float Cutaway1 = SphereSDF(Translate(Test, vec3(-50, -50, 100)), 150);
-	float Cutaway2 = SphereSDF(Translate(Test, vec3(100, 100, 100)), 80);
-	float Cutaway3 = SphereSDF(Translate(Test, vec3(-10, -10, -100)), 100);
-	float Cutaway4 = BoxSDF(RotateY(Translate(Test, vec3(100, 0, 55)), 0.785398), vec3(60, 400, 60));
-	float Cutaway5 = BoxSDF(RotateZ(Translate(Test, vec3(-100, -100, 0)), 0.785398), vec3(50, 50, 400));
-	return Difference(Difference(Difference(Difference(Difference(Solid, Cutaway1), Cutaway2), Cutaway3), Cutaway4), Cutaway5);
 }

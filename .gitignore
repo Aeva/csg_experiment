@@ -4,3 +4,5 @@ renderdoc.h
 *.built
 __pycache__
 *.pyc
+glue/compiled
+*.rdc
