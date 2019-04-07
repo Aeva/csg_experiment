@@ -76,11 +76,11 @@ void SetupScreenInfo()
 	auto InvViewMatrix = Blob.Advance<GLfloat[16]>();
 	float Translation[16];
 	float Rotation[16];
-	TranslationMatrix(Translation, 0.0, 0.0, 400.0);
+	TranslationMatrix(Translation, 0.0, 0.0, 250.0);
 	ZRotationMatrix(Rotation, 0.0);
 	MultiplyMatrices(*_ViewMatrix, Rotation, Translation);
 	InvertMatrix(*InvViewMatrix, *_ViewMatrix);
-	if (true)
+	if (false)
 	{
 		// Orthographic Rendering
 		const float ViewToClipOffsetX = 0.0;

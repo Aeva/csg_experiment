@@ -16,8 +16,10 @@ vec3 Paint(vec3 Position, vec3 Normal, float SDF)
 
 void main()
 {
-	if (gl_FrontFacing != (BoxExtent.w >= 0.0))
+	const bool SubtractShape = BoxExtent.w < 0.0;
+	if (gl_FrontFacing != SubtractShape)
 	{
+		// The pixel is front facing but the operation is subtract.
 		discard;
 	}
 	else
@@ -25,11 +27,13 @@ void main()
 		const float SDF = GeneratedSDF(WorldPosition.xyz);
 		if (SDF > DiscardThreshold)
 		{
+			// SDF indicates the pixel is outside a volume.
 			discard;
 		}
 		else
 		{
-			const float FlipNormal = gl_FrontFacing ? 1.0 : -1.0;
+			// SDF indicates the pixel is within a volume.
+			const float FlipNormal = SubtractShape ? -1.0 : 1.0;
 			Color = vec4(Paint(WorldPosition.xyz, WorldNormal.xyz * FlipNormal, SDF), 1.0);
 		}
 	}
