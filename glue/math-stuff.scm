@@ -39,9 +39,9 @@
 ;; Create a rotation matrix around the x axis:
 (define (rotate-x angle)
   (assert (number? angle))
-  (let* ([P (sin (degrees->radians angle))]
+  (let* ([P (sin (degrees->radians (* angle -1)))]
 	 [N (* -1 P)]
-	 [C (cos (degrees->radians angle))])
+	 [C (cos (degrees->radians (* angle -1)))])
     (mat4 1 0 0 0
 	  0 C P 0
 	  0 N C 0

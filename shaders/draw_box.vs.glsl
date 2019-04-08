@@ -70,7 +70,7 @@ void main()
 	if (ViewToClip.z != 0.0)
 	{
 		// Orthographic Rendering
-		gl_Position = vec4((ViewPosition.xy + ViewToClip.xy) * ViewToClip.zw, 1.0/ViewPosition.z, 1.0);
+		gl_Position = vec4((ViewPosition.xy + ViewToClip.xy) * ViewToClip.zw, 1.0 - (1.0/ViewPosition.z), 1.0);
 	}
 	else
 	{

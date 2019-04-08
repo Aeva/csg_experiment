@@ -20,12 +20,16 @@
 
 ;; CSG tree to be rendered:
 (define csg-tree
-  '(translate (0 -20 0)
-  	     (minus
-  	      (box 200 200 200)
-  	      (box 150 150 400)
-  	      (box 150 400 150)
-  	      (box 400 150 150))))
+  '(union
+    (rotate-x -30
+	      (rotate-y 45
+			(minus
+			 (box 200 200 200)
+			 (box 150 150 400)
+			 (box 150 400 150)
+			 (box 400 150 150)
+			 )))
+    (sphere 100)))
 
   ;; '(union
   ;;   (minus

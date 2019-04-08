@@ -33,7 +33,7 @@ void main()
 		else
 		{
 			// SDF indicates the pixel is within a volume.
-			const float FlipNormal = SubtractShape ? -1.0 : 1.0;
+			const float FlipNormal = SubtractShape ? 1.0 : -1.0;
 			Color = vec4(Paint(WorldPosition.xyz, WorldNormal.xyz * FlipNormal, SDF), 1.0);
 		}
 	}

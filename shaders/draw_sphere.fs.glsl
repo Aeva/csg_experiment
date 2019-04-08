@@ -24,13 +24,13 @@ void main()
 	}
 	else
 	{
-		const float Dir = SphereParams.w >= 0.0 ? 1.0 : -1.0;
+		const float Dir = SphereParams.w >= 0.0 ? -1.0 : 1.0;
 		const float Offset = sqrt(1 - BisectDot) * abs(SphereParams.w);
 		const float NewDepth = Offset * Dir + ViewPosition.z;
 		const vec4 NewViewPosition = vec4(ViewPosition.xy, NewDepth, 1);
 		const vec4 WorldPosition = InvViewMatrix * NewViewPosition;
 		const vec3 ViewNormal = normalize(NewViewPosition.xyz - ViewCenter.xyz);
-		const vec3 WorldNormal = normalize(WorldPosition.xyz - SphereParams.xyz) * (SphereParams.w < 0 ? vec3(-1) : vec3(1));
+		const vec3 WorldNormal = normalize(WorldPosition.xyz - SphereParams.xyz) * Dir;
 		const float SDF = GeneratedSDF(WorldPosition.xyz);
 		if (SDF > DiscardThreshold)
 		{
@@ -38,8 +38,16 @@ void main()
 		}
 		else
 		{
-			gl_FragDepth = 1.0/NewDepth;
 			Color = vec4(Paint(WorldPosition.xyz, WorldNormal, SDF), 1.0);
+			if (ViewToClip.z != 0.0)
+			{
+				gl_FragDepth = 1.0 - (1.0/NewDepth);
+			}
+			else
+			{
+				const vec4 NewClip = PerspectiveMatrix * NewViewPosition;
+				gl_FragDepth = NewClip.z / NewClip.w;
+			}
 		}
 	}
 }
