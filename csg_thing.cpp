@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <cstdint>
+#include "glue/gl_boilerplate.h"
 #include "glue/vector_math.h"
 #include "glue/blob_builder.h"
 #include "csg_thing.h"

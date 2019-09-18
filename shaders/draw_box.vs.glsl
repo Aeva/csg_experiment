@@ -56,6 +56,14 @@ out vec4 WorldPosition;
 out vec4 WorldNormal;
 
 
+out gl_PerVertex
+{
+  vec4 gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
+};
+
+
 void main()
 {
 	const vec4 LocalSpace = vec4(CubeStuff[gl_VertexID] * BoxExtent.xyz, 1.0);

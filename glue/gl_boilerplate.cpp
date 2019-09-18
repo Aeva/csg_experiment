@@ -4,26 +4,20 @@
 #include "gl_boilerplate.h"
 
 
-std::string CheckLinkStatus(GLuint ObjectId)
+std::string GetInfoLog(GLuint ObjectId)
 {
-	GLint StatusValue;
-	glGetProgramiv(ObjectId, GL_LINK_STATUS, &StatusValue);
-	if (!StatusValue)
+	GLint LogLength;
+	glGetProgramiv(ObjectId, GL_INFO_LOG_LENGTH, &LogLength);
+	if (LogLength)
 	{
-		GLint LogLength;
-		glGetProgramiv(ObjectId, GL_INFO_LOG_LENGTH, &LogLength);
-		if (LogLength)
-		{
-			std::string ErrorLog(LogLength, 0);
-			glGetProgramInfoLog(ObjectId, LogLength, NULL, (char*) ErrorLog.data());
-			return ErrorLog;
-		}
-		else
-		{
-			return std::string("An unknown error occured.");
-		}
+		std::string InfoLog(LogLength, 0);
+		glGetProgramInfoLog(ObjectId, LogLength, NULL, (char*)InfoLog.data());
+		return InfoLog;
 	}
-	return std::string();
+	else
+	{
+		return std::string();
+	}
 }
 
 
@@ -113,13 +107,22 @@ StatusCode FillSources(std::vector<std::string>& BreadCrumbs, std::vector<std::s
 
 StatusCode CompileShader(GLenum ShaderType, std::string Path, GLuint& ProgramID)
 {
-	const std::string Extensions = \
+	const std::string ComputeExtensions = \
 		"#version 420\n" \
 		"#extension GL_ARB_compute_shader : require\n" \
 	   	"#extension GL_ARB_shader_storage_buffer_object : require\n" \
 	   	"#extension GL_ARB_shader_image_load_store : require\n" \
 		"#extension GL_ARB_gpu_shader5 : require\n" \
 		"#extension GL_ARB_shading_language_420pack : require\n";
+
+	const std::string RasterExtensions = \
+		"#version 420\n" \
+		"#extension GL_ARB_shader_storage_buffer_object : require\n" \
+		"#extension GL_ARB_shader_image_load_store : require\n" \
+		"#extension GL_ARB_gpu_shader5 : require\n" \
+		"#extension GL_ARB_shading_language_420pack : require\n";
+
+	const std::string Extensions = ShaderType == GL_COMPUTE_SHADER ? ComputeExtensions : RasterExtensions;
 
 	std::vector<std::string> Sources;
 	std::vector<std::string> BreadCrumbs;
@@ -128,23 +131,29 @@ StatusCode CompileShader(GLenum ShaderType, std::string Path, GLuint& ProgramID)
 	FillSources(BreadCrumbs, Sources, Path);
 
 	const int Count = Sources.size();
-	const char* Strings[Count];
+	std::vector<const char*> Strings;
+	Strings.reserve(Count);
 	for (int i=0; i<Count; ++i)
 	{
-		Strings[i] = Sources[i].c_str();
+		Strings.push_back(Sources[i].c_str());
 	}
-	ProgramID = glCreateShaderProgramv(ShaderType, Count, Strings);
-	std::string Error = CheckLinkStatus(ProgramID);
-	if (!Error.empty())
+	ProgramID = glCreateShaderProgramv(ShaderType, Count, Strings.data());
+	GLint LinkStatus;
+	glGetProgramiv(ProgramID, GL_LINK_STATUS, &LinkStatus);
+	if (!LinkStatus)
 	{
-		std::cout << "Generated part:\n" << Sources[0] << "\n\n";
-		std::cout << "Shader string paths:\n";
-		for (int i=0; i<BreadCrumbs.size(); ++i)
+		std::string Error = GetInfoLog(ProgramID);
+		if (!Error.empty())
 		{
-			std::cout << i << " -> " << BreadCrumbs[i] << "\n";
+			std::cout << "Generated part:\n" << Sources[0] << "\n\n";
+			std::cout << "Shader string paths:\n";
+			for (int i = 0; i < BreadCrumbs.size(); ++i)
+			{
+				std::cout << i << " -> " << BreadCrumbs[i] << "\n";
+			}
+			std::cout << "\n" << Error << '\n';
+			return StatusCode::FAIL;
 		}
-		std::cout << "\n" << Error << '\n';
-		return StatusCode::FAIL;
 	}
 	return StatusCode::PASS;
 }
@@ -173,7 +182,13 @@ StatusCode ShaderPipeline::Setup(std::map<GLenum, std::string> Shaders)
 	glValidateProgramPipeline(PipelineID);
 	GLint ValidationStatus;
 	glGetProgramPipelineiv(PipelineID, GL_VALIDATE_STATUS, &ValidationStatus);
-	return ValidationStatus ? StatusCode::PASS : StatusCode::FAIL;
+	if (!ValidationStatus)
+	{
+		std::string Error = GetInfoLog(PipelineID);
+		std::cout << Error << "\n";
+		return StatusCode::FAIL;
+	}
+	return StatusCode::PASS;
 }
 
 

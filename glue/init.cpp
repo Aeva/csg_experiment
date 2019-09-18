@@ -15,11 +15,13 @@ GLFWwindow* Window;
 
 StatusCode FindExtension(const char* ExtensionName)
 {
-	if (!glewGetExtension(ExtensionName))
+	/*
+	if (!gl3wGetExtension(ExtensionName))
 	{
 		std::cout << "Extension is not available: " << ExtensionName << "!!\n";
 		return StatusCode::FAIL;
 	}
+	*/
 	return StatusCode::PASS;
 }
 
@@ -72,8 +74,8 @@ StatusCode SetupGLFW()
 	}
 	glfwMakeContextCurrent(Window);
 
-	GLenum GlewError = glewInit();
-	if (GlewError != GLEW_OK)
+	GLenum Gl3wError = gl3wInit();
+	if (Gl3wError != GL3W_OK)
 	{
 		std::cout << "Glew failed to initialize.\n";
 		glfwTerminate();

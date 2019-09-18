@@ -9,7 +9,7 @@
 #include "vector_math.h"
 
 
-const double ToRadians = M_PI / 180.0;
+const double ToRadians = 3.14159265358979323846 / 180.0;
 
 
 inline void CrossProduct(GLfloat Out[3], const GLfloat LHS[3], const GLfloat RHS[3])

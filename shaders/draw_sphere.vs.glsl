@@ -16,6 +16,14 @@ out vec4 ViewPosition;
 out vec2 SpherePosition;
 
 
+out gl_PerVertex
+{
+  vec4 gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
+};
+
+
 void main()
 {
 	SpherePosition = VertexData[gl_VertexID];
